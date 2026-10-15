@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>The Archive</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Libre+Franklin:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    color-scheme:dark;
+    --ground:#2a2b26; --rule:rgba(242,236,222,.12);
+    --card:#f4f0e6; --card-2:#ebe5d6; --slot:#58554b;
+    --ink:#22211c; --ink-soft:#6f6a5c; --on-ground:#f2ecde; --on-ground-soft:#b9b3a3;
+    --rust:#b8733f; --rust-ink:#9a5b2c; --dash:rgba(34,33,28,.18);
+    --f-display:'Fraunces', Georgia, 'Times New Roman', serif;
+    --f-body:'Libre Franklin', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --f-mono:'IBM Plex Mono', ui-monospace, Menlo, monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{background:var(--ground);color:var(--on-ground);font-family:var(--f-body);-webkit-font-smoothing:antialiased;min-height:100vh}
+  button,input{font-family:inherit}
+  img{max-width:100%}
+  [hidden]{display:none!important}
+  :focus-visible{outline:2px solid var(--rust);outline-offset:2px}
+
+  .dots{display:flex;justify-content:space-between;gap:10px;padding:14px 16px 0;overflow:hidden}
+  .dots span{width:10px;height:10px;border-radius:50%;background:rgba(242,236,222,.22);flex:none}
+
+  /* gate */
+  .gate{min-height:calc(100vh - 24px);display:grid;place-items:center;padding:24px 16px}
+  .gate form{width:100%;max-width:380px;display:grid;gap:18px}
+  .gate h1{font-family:var(--f-display);font-weight:600;font-size:2.4rem;margin:0;line-height:1.1}
+  .gate input[type=password]{font-size:1rem;padding:13px 14px;border-radius:3px;border:1px solid rgba(242,236,222,.25);background:rgba(242,236,222,.06);color:var(--on-ground);width:100%}
+  .gate label.rem{display:flex;gap:10px;align-items:center;font-size:.9rem;color:var(--on-ground-soft)}
+  .gate .err{font-family:var(--f-mono);font-size:.8rem;color:#e7a07a;min-height:1em}
+
+  header.top{padding:28px 16px;border-bottom:1px solid var(--rule);display:grid;grid-template-columns:1fr auto;gap:20px 24px;align-items:start;max-width:1400px;margin:0 auto}
+  header.top h1{font-family:var(--f-display);font-weight:600;font-size:clamp(2rem,5vw,2.6rem);margin:0;line-height:1.1}
+  .sub{font-family:var(--f-mono);font-size:.85rem;letter-spacing:.2em;text-transform:uppercase;color:var(--on-ground-soft);margin-top:6px}
+  .tally{font-family:var(--f-mono);font-size:1.05rem;color:var(--on-ground-soft);letter-spacing:.04em;white-space:nowrap;padding-top:8px}
+  .tally b{color:var(--on-ground);font-weight:500;font-size:1.25rem;margin-right:6px}
+  .btn{font-size:1rem;font-weight:500;padding:12px 26px;border:1px solid rgba(242,236,222,.25);background:transparent;color:var(--on-ground);cursor:pointer;border-radius:3px}
+  .btn.rust{background:var(--rust);border-color:var(--rust);color:#fbf6ec}
+  .btn:disabled{opacity:.5;cursor:default}
+  .tabs{grid-column:1/-1;display:flex;gap:28px;margin-top:4px;align-items:center}
+  .tabs button{background:none;border:0;border-bottom:2px solid transparent;color:var(--on-ground-soft);font-family:var(--f-mono);font-size:.85rem;letter-spacing:.16em;text-transform:uppercase;padding:6px 0;cursor:pointer}
+  .tabs button[aria-selected="true"]{color:var(--on-ground);border-bottom-color:var(--rust)}
+  .tabs .lock{margin-left:auto;letter-spacing:.08em;text-transform:none;font-size:.8rem}
+
+  main{max-width:1400px;margin:0 auto;padding:32px 16px 80px}
+  .records{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,420px),1fr));gap:32px;align-items:start}
+  .record{background:var(--card);color:var(--ink);border-radius:6px;overflow:hidden;min-width:0}
+  .rec-head{display:flex;justify-content:space-between;align-items:center;padding:16px 26px;border-bottom:1px dashed var(--dash)}
+  .code{font-family:var(--f-mono);font-size:1rem;letter-spacing:.06em;color:var(--rust-ink)}
+  .when{font-family:var(--f-mono);font-size:.8rem;color:var(--ink-soft)}
+  .front{margin:8px;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:zoom-in;border:0;padding:0;width:calc(100% - 16px);background:transparent}
+  .front img{display:block;width:auto;max-width:100%;height:auto;max-height:70vh}
+  .front img:not([src]){background:var(--slot);width:360px;aspect-ratio:4/5}
+  .front .fr{position:relative;display:inline-block;max-width:100%;line-height:0}
+  .front .lbl{position:absolute;left:8px;top:8px;font-family:var(--f-mono);font-size:.72rem;letter-spacing:.1em;color:rgba(242,236,222,.75);background:rgba(34,33,28,.45);padding:2px 7px;text-transform:uppercase;line-height:1.4}
+  .meta{padding:20px 26px 6px;display:grid;gap:10px;border-top:1px solid var(--dash)}
+  .meta .t{font-family:var(--f-display);font-weight:600;font-size:1.65rem;line-height:1.2}
+  .trio{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;padding-bottom:12px}
+  .trio div{display:grid;gap:2px;min-width:0}
+  .trio span{font-family:var(--f-display);font-weight:600;font-size:1.05rem;color:var(--ink-soft)}
+  .trio p{margin:0;font-size:.95rem}
+  .note{margin:0 0 14px;font-size:.95rem;line-height:1.6;white-space:pre-wrap;background:var(--card-2);padding:12px 14px;border-radius:3px}
+  .photos-head{display:flex;justify-content:space-between;align-items:baseline;padding:14px 26px 6px;font-family:var(--f-mono);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft)}
+  .strip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));background:var(--card-2)}
+  .shot{aspect-ratio:1;border:0;border-right:1px solid var(--card);border-bottom:1px solid var(--card);padding:0;background:var(--card-2);cursor:zoom-in;overflow:hidden}
+  .shot img{width:100%;height:100%;object-fit:cover;display:block}
+  .shot.is-front{outline:2px solid var(--rust);outline-offset:-2px}
+  .empty-state{grid-column:1/-1;border:1px dashed var(--rule);border-radius:6px;padding:48px 24px;text-align:center;color:var(--on-ground-soft)}
+
+  .lb{position:fixed;inset:0;background:rgba(20,20,17,.97);z-index:50;display:flex;align-items:center;justify-content:center;padding:calc(52px + env(safe-area-inset-top,0px)) 16px calc(60px + env(safe-area-inset-bottom,0px))}
+  .lb img{max-width:100%;max-height:100%;object-fit:contain}
+  .lb .bar{position:absolute;left:0;right:0;bottom:0;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));display:flex;justify-content:space-between;align-items:center;gap:12px;font-family:var(--f-mono);font-size:.78rem;color:var(--on-ground-soft)}
+  .lb .bar span{text-align:center}
+  .lb button{background:none;border:1px solid rgba(242,236,222,.3);color:var(--on-ground);padding:8px 14px;cursor:pointer}
+  .lb .x{position:absolute;top:calc(10px + env(safe-area-inset-top,0px));right:12px}
+
+  @media (max-width:520px){
+    .rec-head,.meta,.photos-head{padding-inline:16px}
+    .trio{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+<div class="dots" aria-hidden="true" id="dots"></div>
+
+<section class="gate" id="gate">
+  <form id="gate-form" autocomplete="on">
+    <div>
+      <h1>The Archive</h1>
+      <div class="sub">Catalogue &amp; condition record</div>
+    </div>
+    <input type="text" name="username" value="archive" autocomplete="username" hidden>
+    <input type="password" id="pw" name="password" placeholder="Password" autocomplete="current-password" aria-label="Password" required autofocus>
+    <label class="rem"><input type="checkbox" id="remember" checked> Keep me signed in on this device</label>
+    <button class="btn rust" id="go" type="submit">Enter</button>
+    <div class="err" id="err" role="status"></div>
+  </form>
+</section>
+
+<div id="app" hidden>
+  <header class="top">
+    <div>
+      <h1>The Archive</h1>
+      <div class="sub">Catalogue &amp; condition record</div>
+    </div>
+    <div class="tally" id="tally"></div>
+    <nav class="tabs" role="tablist" aria-label="Views">
+      <button type="button" role="tab" id="tab-archive" aria-selected="true">Archive</button>
+      <button type="button" role="tab" id="tab-wip" aria-selected="false">Work in progress</button>
+      <button type="button" class="lock" id="signout">Sign out</button>
+    </nav>
+  </header>
+  <main><div class="records" id="records"></div></main>
+</div>
+
+<div class="lb" id="lb" hidden role="dialog" aria-modal="true" aria-label="Photo viewer">
+  <button type="button" class="x" id="lb-close">Close</button>
+  <img id="lb-img" alt="">
+  <div class="bar"><button type="button" id="lb-prev">Previous</button><span id="lb-count"></span><button type="button" id="lb-next">Next</button></div>
+</div>
+
+<script>
+(function(){
+  const $ = s => document.querySelector(s);
+  const el = (tag, attrs={}, ...kids) => { const n = document.createElement(tag);
+    for (const [k,v] of Object.entries(attrs)) { if (v == null || v === false) continue;
+      if (k === 'class') n.className = v; else if (k === 'style') n.setAttribute('style', v);
+      else if (k.startsWith('on')) n.addEventListener(k.slice(2), v); else n.setAttribute(k, v); }
+    for (const c of kids) if (c != null) n.append(c); return n; };
+  for (let i = 0; i < 40; i++) $('#dots').append(el('span'));
+
+  const STORE = 'archive-key';
+  const b64 = { to: b => btoa(String.fromCharCode(...new Uint8Array(b))), from: s => Uint8Array.from(atob(s), c => c.charCodeAt(0)) };
+  let KEY = null, DATA = null, view = location.hash === '#wip' ? 'wip' : 'archive';
+
+  async function deriveRaw(pw){
+    const v = await (await fetch('vault.json', { cache:'no-store' })).json();
+    const base = await crypto.subtle.importKey('raw', new TextEncoder().encode(pw), 'PBKDF2', false, ['deriveBits']);
+    return crypto.subtle.deriveBits({ name:'PBKDF2', hash:'SHA-256', salt: b64.from(v.salt), iterations: v.iterations }, base, 256);
+  }
+  const importKey = raw => crypto.subtle.importKey('raw', raw, 'AES-GCM', false, ['decrypt']);
+  async function open(buf){ const u = new Uint8Array(buf); return crypto.subtle.decrypt({ name:'AES-GCM', iv: u.slice(0,12) }, KEY, u.slice(12)); }
+  async function loadData(){ const r = await fetch('data.bin', { cache:'no-store' }); return JSON.parse(new TextDecoder().decode(await open(await r.arrayBuffer()))); }
+
+  async function unlock(raw, remember){
+    KEY = await importKey(raw);
+    DATA = await loadData();          // throws if the key is wrong
+    if (remember) try { localStorage.setItem(STORE, b64.to(raw)); } catch(e){}
+    $('#gate').hidden = true; $('#app').hidden = false; render();
+  }
+
+  $('#gate-form').addEventListener('submit', async e => {
+    e.preventDefault(); const btn = $('#go'); btn.disabled = true; $('#err').textContent = 'Opening…';
+    try { await unlock(await deriveRaw($('#pw').value), $('#remember').checked); $('#err').textContent = ''; }
+    catch(err){ KEY = null; $('#err').textContent = 'That password didn’t work.'; $('#pw').select(); }
+    btn.disabled = false;
+  });
+  $('#signout').onclick = () => { try { localStorage.removeItem(STORE); } catch(e){} location.reload(); };
+
+  (async () => { let saved = null; try { saved = localStorage.getItem(STORE); } catch(e){}
+    if (!saved) return;
+    try { await unlock(b64.from(saved).buffer, false); } catch(e){ try { localStorage.removeItem(STORE); } catch(_){} KEY = null; }
+  })();
+
+  // encrypted images -> blob URLs
+  const cache = {}, pending = {};
+  function imgURL(name){
+    if (cache[name]) return Promise.resolve(cache[name]);
+    if (pending[name]) return pending[name];
+    const fn = DATA.files[name]; if (!fn) return Promise.reject(new Error('missing ' + name));
+    return pending[name] = fetch('e/' + fn).then(r => r.arrayBuffer()).then(open)
+      .then(b => (cache[name] = URL.createObjectURL(new Blob([b], { type:'image/jpeg' })))).finally(() => delete pending[name]);
+  }
+  const io = new IntersectionObserver(es => es.forEach(e => { if (!e.isIntersecting) return; io.unobserve(e.target);
+    imgURL(e.target.dataset.img).then(u => e.target.src = u).catch(() => {}); }), { rootMargin:'600px 0px' });
+  const lazy = (name, attrs) => { const i = el('img', { ...attrs, 'data-img': name }); io.observe(i); return i; };
+
+  const code = i => 'AR·' + String(i + 1).padStart(3, '0');
+  const wcode = i => 'WIP·' + String(i + 1).padStart(3, '0');
+
+  function render(){
+    $('#tab-archive').setAttribute('aria-selected', view === 'archive');
+    $('#tab-wip').setAttribute('aria-selected', view === 'wip');
+    const box = $('#records'); box.replaceChildren();
+    if (view === 'wip') {
+      const n = DATA.wip.length;
+      $('#tally').replaceChildren(el('b', {}, String(n)), n === 1 ? 'piece in progress' : 'pieces in progress');
+      if (!n) box.append(el('div', { class:'empty-state' }, 'Paintings in progress will appear here.'));
+      DATA.wip.forEach((w, i) => { const one = { title: w.title, photos:[w.photo] };
+        box.append(el('article', { class:'record' },
+          el('div', { class:'rec-head' }, el('div', { class:'code' }, wcode(i)), el('span', { class:'when' }, w.date || '')),
+          el('button', { type:'button', class:'front', 'aria-label':'View ' + (w.title || 'work in progress'), onclick: () => openLB(one, 0) },
+            el('span', { class:'fr' }, lazy('web/' + w.photo, { alt: w.title || 'Work in progress' }))),
+          el('div', { class:'meta' }, el('div', { class:'t' }, w.title || 'Untitled'), w.notes ? el('p', { class:'note' }, w.notes) : null))); });
+      return;
+    }
+    const n = DATA.works.length;
+    $('#tally').replaceChildren(el('b', {}, String(n)), n === 1 ? 'work catalogued' : 'works catalogued');
+    DATA.works.forEach((w, i) => {
+      const strip = el('div', { class:'strip' });
+      w.photos.forEach((p, k) => strip.append(el('button', { type:'button', class:'shot' + (k ? '' : ' is-front'), 'aria-label':'Photo ' + (k+1), onclick: () => openLB(w, k) },
+        lazy('thumb/' + p, { alt:'' }))));
+      box.append(el('article', { class:'record' },
+        el('div', { class:'rec-head' }, el('div', { class:'code' }, code(i))),
+        w.photos.length ? el('button', { type:'button', class:'front', 'aria-label':'View ' + w.title, onclick: () => openLB(w, 0) },
+          el('span', { class:'fr' }, lazy('web/' + w.photos[0], { alt: w.title + ', front' }), el('span', { class:'lbl' }, 'Front'))) : null,
+        el('div', { class:'meta' },
+          el('div', { class:'t' }, w.title || 'Untitled'),
+          el('div', { class:'trio' },
+            el('div', {}, el('span', {}, 'Year'), el('p', {}, w.year || '—')),
+            el('div', {}, el('span', {}, 'Medium'), el('p', {}, w.medium || '—')),
+            el('div', {}, el('span', {}, 'Dimensions'), el('p', {}, w.size || '—'))),
+          w.notes ? el('p', { class:'note' }, w.notes) : null),
+        el('div', { class:'photos-head' }, el('span', {}, 'Photographs'), el('span', {}, String(w.photos.length))),
+        strip));
+    });
+  }
+  function setView(v){ view = v; try { history.replaceState(null, '', v === 'wip' ? '#wip' : '#'); } catch(e){} render(); scrollTo({ top:0 }); }
+  $('#tab-archive').onclick = () => setView('archive');
+  $('#tab-wip').onclick = () => setView('wip');
+
+  // lightbox
+  let lbW = null, lbI = 0;
+  const webName = p => 'web/' + p;
+  function openLB(w, k){ lbW = w; lbI = k; $('#lb').hidden = false; draw(); $('#lb-close').focus(); }
+  function draw(){
+    const i = lbI, p = lbW.photos[i], img = $('#lb-img');
+    img.removeAttribute('src'); img.alt = (lbW.title || 'Untitled') + ', ' + (i ? 'photo ' + (i+1) : 'front');
+    $('#lb-count').textContent = (lbW.title || 'Untitled') + ' · ' + (i + 1) + ' / ' + lbW.photos.length;
+    imgURL(webName(p)).then(u => { if (lbI === i) img.src = u; }).catch(() => {});
+    const n = lbW.photos.length; [1, -1].forEach(d => imgURL(webName(lbW.photos[(i + d + n) % n])).catch(() => {}));
+  }
+  function step(d){ lbI = (lbI + d + lbW.photos.length) % lbW.photos.length; draw(); }
+  $('#lb-close').onclick = () => $('#lb').hidden = true;
+  $('#lb-prev').onclick = () => step(-1); $('#lb-next').onclick = () => step(1);
+  $('#lb').addEventListener('click', e => { if (e.target.id === 'lb') $('#lb').hidden = true; });
+  document.addEventListener('keydown', e => { if ($('#lb').hidden) return;
+    if (e.key === 'Escape') $('#lb').hidden = true; if (e.key === 'ArrowRight') step(1); if (e.key === 'ArrowLeft') step(-1); });
+  let tx = null; $('#lb').addEventListener('touchstart', e => tx = e.touches[0].clientX, { passive:true });
+  $('#lb').addEventListener('touchend', e => { if (tx == null) return; const dx = e.changedTouches[0].clientX - tx; if (Math.abs(dx) > 50) step(dx < 0 ? 1 : -1); tx = null; });
+})();
+</script>
+</body>
+</html>
