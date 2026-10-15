@@ -99,7 +99,7 @@
       <div class="sub">Catalogue &amp; condition record</div>
     </div>
     <input type="text" name="username" value="archive" autocomplete="username" hidden>
-    <input type="password" id="pw" name="password" placeholder="Password" autocomplete="current-password" aria-label="Password" required autofocus>
+    <input type="password" id="pw" name="password" placeholder="Password" autocomplete="current-password" aria-label="Password" autocapitalize="none" autocorrect="off" spellcheck="false" required autofocus>
     <label class="rem"><input type="checkbox" id="remember" checked> Keep me signed in on this device</label>
     <button class="btn rust" id="go" type="submit">Enter</button>
     <div class="err" id="err" role="status"></div>
@@ -143,13 +143,13 @@
   let KEY = null, DATA = null, view = location.hash === '#wip' ? 'wip' : 'archive';
 
   async function deriveRaw(pw){
-    const v = await (await fetch('vault.json', { cache:'no-store' })).json();
-    const base = await crypto.subtle.importKey('raw', new TextEncoder().encode(pw), 'PBKDF2', false, ['deriveBits']);
+    const v = await (await fetch('vault.json?v=' + Date.now(), { cache:'no-store' })).json();
+    const base = await crypto.subtle.importKey('raw', new TextEncoder().encode(pw.trim().toLowerCase().replace(/\.+$/, '')), 'PBKDF2', false, ['deriveBits']);
     return crypto.subtle.deriveBits({ name:'PBKDF2', hash:'SHA-256', salt: b64.from(v.salt), iterations: v.iterations }, base, 256);
   }
   const importKey = raw => crypto.subtle.importKey('raw', raw, 'AES-GCM', false, ['decrypt']);
   async function open(buf){ const u = new Uint8Array(buf); return crypto.subtle.decrypt({ name:'AES-GCM', iv: u.slice(0,12) }, KEY, u.slice(12)); }
-  async function loadData(){ const r = await fetch('data.bin', { cache:'no-store' }); return JSON.parse(new TextDecoder().decode(await open(await r.arrayBuffer()))); }
+  async function loadData(){ const r = await fetch('data.bin?v=' + Date.now(), { cache:'no-store' }); return JSON.parse(new TextDecoder().decode(await open(await r.arrayBuffer()))); }
 
   async function unlock(raw, remember){
     KEY = await importKey(raw);
